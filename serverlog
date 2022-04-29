@@ -1,0 +1,371 @@
+Welcome to Cloud Shell! Type "help" to get started.
+Your Cloud Platform project in this session is set to mymessageapp-348513.
+Use “gcloud config set project [PROJECT_ID]” to change to a different project.
+choihan2425@cloudshell:~ (mymessageapp-348513)$ ls
+MessageApp  README-cloudshell.txt
+choihan2425@cloudshell:~ (mymessageapp-348513)$ cd MessageApp
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ ls
+node_modules  package.json  package-lock.json  public  server.js
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ server.js
+-bash: server.js: command not found
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ nano end
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ cat .env
+PASSPORT_SECRET=alongsecretonlyiknow_asdlfkhja465xzcew523
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ git pull
+hint: Pulling without specifying how to reconcile divergent branches is
+hint: discouraged. You can squelch this message by running one of the following
+hint: commands sometime before your next pull:
+hint:
+hint:   git config pull.rebase false  # merge (the default strategy)
+hint:   git config pull.rebase true   # rebase
+hint:   git config pull.ff only       # fast-forward only
+hint:
+hint: You can replace "git config" with "git config --global" to set a default
+hint: preference for all repositories. You can also pass --rebase, --no-rebase,
+hint: or --ff-only on the command line to override the configured default per
+hint: invocation.
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 1), reused 3 (delta 1), pack-reused 0
+Unpacking objects: 100% (3/3), 354 bytes | 354.00 KiB/s, done.
+From https://github.com/choihan2425/MessageApp
+   6cbd288..eda1034  master     -> origin/master
+Updating 6cbd288..eda1034
+Fast-forward
+ server.js | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ cat server.js
+// install all packages
+// npm i express body-parser express-session passport passport-local passport-local-mongoose dotenv
+// https://cloud.google.com/appengine/docs/flexible/nodejs/configuring-your-app-with-app-yaml
+
+require('dotenv').config()
+const express = require("express");
+const fs = require('fs');
+const app = express();
+
+//Add sessions
+const session = require('express-session');
+const passport = require('passport');
+const passportLocalMongoose = require('passport-local-mongoose');
+
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(express.static(__dirname + "/public"));
+
+//Initialize passport
+app.use(session({
+    secret: process.env.PASSPORT_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.listen(3000, function () {
+    console.log("server started at 3000")
+});
+
+app.get("/", function (req, res) {
+    res.sendFile("/public/index.html");
+});
+
+
+app.post("/save", function (req, res) {
+    const msg = {
+        "message": req.body.message
+    }
+
+    const messageJSON = JSON.stringify(msg);
+    console.log('msg' + messageJSON);
+    fs.writeFile(__dirname + "/public/data/message.json", messageJSON, function (err) {
+        if (err) {
+            console.log("JSON file writing error");
+            console.log(err);
+        } else {
+            res.redirect("/");
+        }
+    });
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ node server.js
+server started at 3000
+^C
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ git pull
+hint: Pulling without specifying how to reconcile divergent branches is
+hint: discouraged. You can squelch this message by running one of the following
+hint: commands sometime before your next pull:
+hint:
+hint:   git config pull.rebase false  # merge (the default strategy)
+hint:   git config pull.rebase true   # rebase
+hint:   git config pull.ff only       # fast-forward only
+hint:
+hint: You can replace "git config" with "git config --global" to set a default
+hint: preference for all repositories. You can also pass --rebase, --no-rebase,
+hint: or --ff-only on the command line to override the configured default per
+hint: invocation.
+remote: Enumerating objects: 8, done.
+remote: Counting objects: 100% (8/8), done.
+remote: Compressing objects: 100% (4/4), done.
+remote: Total 6 (delta 2), reused 6 (delta 2), pack-reused 0
+Unpacking objects: 100% (6/6), 832 bytes | 832.00 KiB/s, done.
+From https://github.com/choihan2425/MessageApp
+   eda1034..e1075f5  master     -> origin/master
+Updating eda1034..e1075f5
+Fast-forward
+ app.yaml  | 15 +++++++++++++++
+ server.js |  4 ++--
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+ create mode 100644 app.yaml
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ node server.js
+server started at 8080
+^C
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ gcloud app deploy
+You are creating an app for project [mymessageapp-348513].
+WARNING: Creating an App Engine application for a project is irreversible and the region
+cannot be changed. More information about regions is at
+<https://cloud.google.com/appengine/docs/locations>.
+
+Please choose the region where you want your App Engine application located:
+
+ [1] asia-east1    (supports standard and flexible)
+ [2] asia-east2    (supports standard and flexible and search_api)
+ [3] asia-northeast1 (supports standard and flexible and search_api)
+ [4] asia-northeast2 (supports standard and flexible and search_api)
+ [5] asia-northeast3 (supports standard and flexible and search_api)
+ [6] asia-south1   (supports standard and flexible and search_api)
+ [7] asia-southeast1 (supports standard and flexible)
+ [8] asia-southeast2 (supports standard and flexible and search_api)
+ [9] australia-southeast1 (supports standard and flexible and search_api)
+ [10] europe-central2 (supports standard and flexible)
+ [11] europe-west   (supports standard and flexible and search_api)
+ [12] europe-west2  (supports standard and flexible and search_api)
+ [13] europe-west3  (supports standard and flexible and search_api)
+ [14] europe-west6  (supports standard and flexible and search_api)
+ [15] northamerica-northeast1 (supports standard and flexible and search_api)
+ [16] southamerica-east1 (supports standard and flexible and search_api)
+ [17] us-central    (supports standard and flexible and search_api)
+ [18] us-east1      (supports standard and flexible and search_api)
+ [19] us-east4      (supports standard and flexible and search_api)
+ [20] us-west1      (supports standard and flexible)
+ [21] us-west2      (supports standard and flexible and search_api)
+ [22] us-west3      (supports standard and flexible and search_api)
+ [23] us-west4      (supports standard and flexible and search_api)
+ [24] cancel
+Please enter your numeric choice:  gcloud init
+Please enter a value between 1 and 24:  ^C
+
+Command killed by keyboard interrupt
+
+
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ gcloud init
+Welcome! This command will take you through the configuration of gcloud.
+
+Settings from your current configuration [cloudshell-20781] are:
+accessibility:
+  screen_reader: 'True'
+component_manager:
+  disable_update_check: 'True'
+compute:
+  gce_metadata_read_timeout_sec: '30'
+core:
+  account: choihan2425@gmail.com
+  disable_usage_reporting: 'True'
+  project: mymessageapp-348513
+metrics:
+  environment: devshell
+
+Pick configuration to use:
+ [1] Re-initialize this configuration [cloudshell-20781] with new settings
+ [2] Create a new configuration
+Please enter your numeric choice:  1
+
+Your current configuration has been set to: [cloudshell-20781]
+
+You can skip diagnostics next time by using the following flag:
+  gcloud init --skip-diagnostics
+
+Network diagnostic detects and fixes local network connection issues.
+Checking network connection...done.
+Reachability Check passed.
+Network diagnostic passed (1/1 checks passed).
+
+Choose the account you would like to use to perform operations for this configuration:
+ [1] choihan2425@gmail.com
+ [2] Log in with a new account
+Please enter your numeric choice:  1
+
+You are logged in as: [choihan2425@gmail.com].
+
+Pick cloud project to use:
+ [1] mymessageapp-348513
+ [2] vivid-case-348504
+ [3] Enter a project ID
+ [4] Create a new project
+Please enter numeric choice or text value (must exactly match list item):  1
+
+Your current project has been set to: [mymessageapp-348513].
+
+Not setting default zone/region (this feature makes it easier to use
+[gcloud compute] by setting an appropriate default value for the
+--zone and --region flag).
+See https://cloud.google.com/compute/docs/gcloud-compute section on how to set
+default compute region and zone manually. If you would like [gcloud init] to be
+able to do this for you the next time you run it, make sure the
+Compute Engine API is enabled for your project on the
+https://console.developers.google.com/apis page.
+
+Created a default .boto configuration file at [/home/choihan2425/.boto]. See this file and
+[https://cloud.google.com/storage/docs/gsutil/commands/config] for more
+information about configuring Google Cloud Storage.
+Your Google Cloud SDK is configured and ready to use!
+
+* Commands that require authentication will use choihan2425@gmail.com by default
+* Commands will reference project `mymessageapp-348513` by default
+Run `gcloud help config` to learn how to change individual settings
+
+This gcloud configuration is called [cloudshell-20781]. You can create additional configurations if you work with multiple accounts and/or projects.
+Run `gcloud topic configurations` to learn more.
+
+Some things to try next:
+
+* Run `gcloud --help` to see the Cloud Platform services you can interact with. And run `gcloud help COMMAND` to get help on any gcloud command.
+* Run `gcloud topic --help` to learn about advanced features of the SDK like arg files and output formatting
+* Run `gcloud cheat-sheet` to see a roster of go-to `gcloud` commands.
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ gcloud deploy app'\
+> ^C
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ gcloud deploy app
+ERROR: (gcloud.deploy) Invalid choice: 'app'.
+Maybe you meant:
+  gcloud app deploy
+  gcloud deploy apply
+
+To search the help text of gcloud commands, run:
+  gcloud help -- SEARCH_TERMS
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ gcloud app deploy
+You are creating an app for project [mymessageapp-348513].
+WARNING: Creating an App Engine application for a project is irreversible and the region
+cannot be changed. More information about regions is at
+<https://cloud.google.com/appengine/docs/locations>.
+
+Please choose the region where you want your App Engine application located:
+
+ [1] asia-east1    (supports standard and flexible)
+ [2] asia-east2    (supports standard and flexible and search_api)
+ [3] asia-northeast1 (supports standard and flexible and search_api)
+ [4] asia-northeast2 (supports standard and flexible and search_api)
+ [5] asia-northeast3 (supports standard and flexible and search_api)
+ [6] asia-south1   (supports standard and flexible and search_api)
+ [7] asia-southeast1 (supports standard and flexible)
+ [8] asia-southeast2 (supports standard and flexible and search_api)
+ [9] australia-southeast1 (supports standard and flexible and search_api)
+ [10] europe-central2 (supports standard and flexible)
+ [11] europe-west   (supports standard and flexible and search_api)
+ [12] europe-west2  (supports standard and flexible and search_api)
+ [13] europe-west3  (supports standard and flexible and search_api)
+ [14] europe-west6  (supports standard and flexible and search_api)
+ [15] northamerica-northeast1 (supports standard and flexible and search_api)
+ [16] southamerica-east1 (supports standard and flexible and search_api)
+ [17] us-central    (supports standard and flexible and search_api)
+ [18] us-east1      (supports standard and flexible and search_api)
+ [19] us-east4      (supports standard and flexible and search_api)
+ [20] us-west1      (supports standard and flexible)
+ [21] us-west2      (supports standard and flexible and search_api)
+ [22] us-west3      (supports standard and flexible and search_api)
+ [23] us-west4      (supports standard and flexible and search_api)
+ [24] cancel
+Please enter your numeric choice:  18
+
+Creating App Engine application in project [mymessageapp-348513] and region [us-east1]....done.
+Services to deploy:
+
+descriptor:                  [/home/choihan2425/MessageApp/app.yaml]
+source:                      [/home/choihan2425/MessageApp]
+target project:              [mymessageapp-348513]
+target service:              [default]
+target version:              [20220429t134102]
+target url:                  [https://mymessageapp-348513.ue.r.appspot.com]
+target service account:      [App Engine default service account]
+
+
+Do you want to continue (Y/n)?  y
+
+Enabling service [appengineflex.googleapis.com] on project [mymessageapp-348513]...
+Operation "operations/acf.p2-908951186253-e4c772ca-e0bf-4be7-99b3-f1e3cc66b7a2" finished successfully.
+Beginning deployment of service [default]...
+Building and pushing image for service [default]
+Started cloud build [065d774d-7b49-43b2-9371-360f86fdd69c].
+To see logs in the Cloud Console: https://console.cloud.google.com/cloud-build/builds/065d774d-7b49-43b2-9371-360f86fdd69c?project=908951186253
+----------------------------------------------------------------- REMOTE BUILD OUTPUT -----------------------------------------------------------------
+starting build "065d774d-7b49-43b2-9371-360f86fdd69c"
+
+FETCHSOURCE
+Fetching storage object: gs://staging.mymessageapp-348513.appspot.com/us.gcr.io/mymessageapp-348513/appengine/default.20220429t134102:latest#1651239745798694
+Copying gs://staging.mymessageapp-348513.appspot.com/us.gcr.io/mymessageapp-348513/appengine/default.20220429t134102:latest#1651239745798694...
+/ [1 files][  9.6 KiB/  9.6 KiB]
+Operation completed over 1 objects/9.6 KiB.
+BUILD
+Starting Step #0
+Step #0: Pulling image: gcr.io/gcp-runtimes/nodejs/gen-dockerfile@sha256:8e2b8eef87fae1bc4b80206cc84139a52973433daafef5ba30ae84f2f85d01b6
+Step #0: gcr.io/gcp-runtimes/nodejs/gen-dockerfile@sha256:8e2b8eef87fae1bc4b80206cc84139a52973433daafef5ba30ae84f2f85d01b6: Pulling from gcp-runtimes/nodejs/gen-dockerfile
+Step #0: Digest: sha256:8e2b8eef87fae1bc4b80206cc84139a52973433daafef5ba30ae84f2f85d01b6
+Step #0: Status: Downloaded newer image for gcr.io/gcp-runtimes/nodejs/gen-dockerfile@sha256:8e2b8eef87fae1bc4b80206cc84139a52973433daafef5ba30ae84f2f85d01b6
+Step #0: gcr.io/gcp-runtimes/nodejs/gen-dockerfile@sha256:8e2b8eef87fae1bc4b80206cc84139a52973433daafef5ba30ae84f2f85d01b6
+Step #0: Checking for Node.js.
+Step #0: WARNING:  Your package.json does not specify a supported Node.js version.  Please pin your application to a major version of the Node.js runtime.  To learn more, visit https://cloud.google.com/appengine/docs/flexible/nodejs/runtime
+Finished Step #0
+Starting Step #1
+Step #1: Already have image (with digest): gcr.io/kaniko-project/executor@sha256:f87c11770a4d3ed33436508d206c584812cd656e6ed08eda1cff5c1ee44f5870
+Step #1: INFO[0000] Removing ignored files from build context: [node_modules .dockerignore Dockerfile npm-debug.log yarn-error.log .git .hg .svn app.yaml]
+Step #1: INFO[0000] Downloading base image gcr.io/google-appengine/nodejs@sha256:1b9d17453000c2c6c819b055688821db3deaa2dfa7fb4e73606c8788f6c9e29a
+Step #1: INFO[0016] Taking snapshot of full filesystem...
+Step #1: INFO[0023] Using files from context: [/workspace]
+Step #1: INFO[0023] COPY . /app/
+Step #1: INFO[0023] Taking snapshot of files...
+Step #1: INFO[0023] RUN npm install --unsafe-perm ||   ((if [ -f npm-debug.log ]; then       cat npm-debug.log;     fi) && false)
+Step #1: INFO[0023] cmd: /bin/sh
+Step #1: INFO[0023] args: [-c npm install --unsafe-perm ||   ((if [ -f npm-debug.log ]; then       cat npm-debug.log;     fi) && false)]
+Step #1: npm WARN read-shrinkwrap This version of npm is compatible with lockfileVersion@1, but package-lock.json was generated for lockfileVersion@2. I'll try to do my best with it!
+Step #1: npm WARN messageapp@1.0.0 No description
+Step #1:
+Step #1: added 70 packages from 45 contributors and audited 70 packages in 5.36s
+Step #1:
+Step #1: 8 packages are looking for funding
+Step #1:   run `npm fund` for details
+Step #1:
+Step #1: found 0 vulnerabilities
+Step #1:
+Step #1: INFO[0029] Taking snapshot of full filesystem...
+Step #1: INFO[0034] CMD npm start
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:e5432cc4a8efd5eff765ebe03a3e069288b8d5e58529f6328dbf6a541ac744f0
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:d8f00a1e4d414f75cc536730759c970737a856cad1b9be98f12b5e28e873e876
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:e3f9475fdabaaf3e65cb2a8c9712145e4ff787c4e1cce2c7ef04b585f462e908
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:3c2cba919283a210665e480bcbf943eaaf4ed87a83f02e81bb286b8bdead0e75
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:a580701d43cda38e91b9ad52e05a51cc8a8d60bb49320c268a60bd1590524385
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:249e4b2b17cde283d00b67e294ecb7bf215d3340f7fb1bb835010f073a0759d7
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:2f66ec679dae82e48d1223ba3445f84d850a0dfcee3c32cdf4f7b5bac9c2e9a1
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:8ca77d5ce16632222cc29e986c56ca5fc37250470c8ce90c42d71a7f2ecf8c12
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:6c5b97b864a653d10b2da9fe9e48b9bea155199471b64a28c40a809c39393b00
+Step #1: 2022/04/29 13:43:13 existing blob: sha256:bf5ddf076e37955e438f441aa1133bc341e03c61e65be42d9fe77dbdf131b8eb
+Step #1: 2022/04/29 13:43:14 pushed blob sha256:9a1094643f030402afd6329e6db951d32963d6c62f3650ead814a7df058ab06b
+Step #1: 2022/04/29 13:43:14 pushed blob sha256:5e35290de60e96b9096dd1588d90d391c282025229ab7a55aae8b105be114443
+Step #1: 2022/04/29 13:43:14 pushed blob sha256:fec0420228ecb7424ee14b2ca28db1d5d6c07ad69c0243ad0ff9ac7e71218942
+Step #1: 2022/04/29 13:43:15 us.gcr.io/mymessageapp-348513/appengine/default.20220429t134102:latest: digest: sha256:d4ad147dc42a07baa472aa9dad49873742e0f9aed78539881460854a950867bf size: 2220
+Finished Step #1
+PUSH
+DONE
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+Updating service [default] (this may take several minutes)...done.
+Setting traffic split for service [default]...done.
+Deployed service [default] to [https://mymessageapp-348513.ue.r.appspot.com]
+
+You can stream logs from the command line by running:
+  $ gcloud app logs tail -s default
+
+To view your application in the web browser run:
+  $ gcloud app browse
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$ gcloud app browse
+Did not detect your browser. Go to this link to view your app:
+https://mymessageapp-348513.ue.r.appspot.com
+choihan2425@cloudshell:~/MessageApp (mymessageapp-348513)$
